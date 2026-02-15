@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Family Alarm</string>
+    <string name="create_family">Create Family</string>
+    <string name="join_family">Join Family</string>
+    <string name="send_alarm">SEND ALARM</string>
+    <string name="dismiss_alarm">DISMISS</string>
+    <string name="your_name">Your Name</string>
+    <string name="family_code">Family Code</string>
+    <string name="enter_name_hint">Enter your name</string>
+    <string name="enter_code_hint">Enter family code</string>
+    <string name="alarm_channel_name">Family Alarm</string>
+    <string name="alarm_channel_description">Emergency family alarm notifications</string>
+    <string name="alarm_incoming">Family Alarm!</string>
+    <string name="alarm_from">Alarm from %s</string>
+    <string name="leave_family">Leave Family</string>
+    <string name="family_members">Family Members</string>
+    <string name="alarm_sent">Alarm sent to family!</string>
+    <string name="grant_dnd_permission">Grant DND Override Permission</string>
+    <string name="dnd_explanation">This app needs permission to override Do Not Disturb so alarms can reach you in emergencies.</string>
+</resources>

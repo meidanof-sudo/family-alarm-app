@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="red_primary">#FFD32F2F</color>
+    <color name="red_dark">#FFB71C1C</color>
+    <color name="red_light">#FFEF5350</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="grey_bg">#FFF5F5F5</color>
+    <color name="green_accent">#FF4CAF50</color>
+    <color name="dark_bg">#FF1A1A2E</color>
+    <color name="card_bg">#FF16213E</color>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFAAAAAA</color>
+    <color name="alarm_red">#FFFF1744</color>
+</resources>
