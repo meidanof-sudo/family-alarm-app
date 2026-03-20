@@ -200,45 +200,26 @@
                         android:textColor="@color/white"
                         android:textSize="18sp"
                         android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginBottom="16dp"
-                        android:background="#33FFFFFF" />
-
-                    <TextView
-                        android:id="@+id/tvMembers"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:lineSpacingMultiplier="1.4" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Big Alarm Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSendAlarm"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_marginTop="40dp"
-                android:text="@string/send_alarm"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:backgroundTint="@color/alarm_red"
-                app:cornerRadius="100dp"
-                app:iconGravity="textTop"
-                app:elevation="8dp" />
-
+            <!-- Section header -->
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Tap to alarm all family members"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="Tap ALARM next to a family member to alert them"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:textSize="13sp"
+                android:gravity="center" />
+
+            <!-- Family members list with individual alarm buttons -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMembers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false" />
 
             <!-- Leave Family Button -->
             <com.google.android.material.button.MaterialButton

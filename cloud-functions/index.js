@@ -8,8 +8,8 @@ const messaging = admin.messaging();
 
 /**
  * Triggered when a new alarm document is created in the "alarms" collection.
- * Reads the family group, collects all FCM tokens (except the sender's),
- * and sends a high-priority data message to each device.
+ * Reads the family group, finds the targeted member's FCM token,
+ * and sends a high-priority data message to that specific device.
  *
  * The Android app's AlarmFCMService receives this data message and starts
  * the AlarmSoundService, which plays the alarm sound using USAGE_ALARM
@@ -19,7 +19,7 @@ exports.onAlarmCreated = functions.firestore
   .document("alarms/{alarmId}")
   .onCreate(async (snap) => {
     const alarm = snap.data();
-    const { familyCode, senderName, senderUid } = alarm;
+    const { familyCode, senderName, senderUid, targetUid } = alarm;
 
     if (!familyCode) {
       console.error("No familyCode in alarm document");
@@ -36,10 +36,19 @@ exports.onAlarmCreated = functions.firestore
     const family = familyDoc.data();
     const members = family.members || [];
 
-    // Collect FCM tokens of all members except the sender
-    const tokens = members
-      .filter((m) => m.uid !== senderUid && m.fcmToken)
-      .map((m) => m.fcmToken);
+    // Find the targeted member's token, or fall back to all members except sender
+    let tokens;
+    if (targetUid) {
+      const target = members.find(
+        (m) => m.uid === targetUid && m.fcmToken
+      );
+      tokens = target ? [target.fcmToken] : [];
+    } else {
+      // Fallback: send to all except sender
+      tokens = members
+        .filter((m) => m.uid !== senderUid && m.fcmToken)
+        .map((m) => m.fcmToken);
+    }
 
     if (tokens.length === 0) {
       console.log("No recipients to notify");
@@ -89,5 +98,5 @@ exports.onAlarmCreated = functions.firestore
     });
 
     await Promise.all(sendPromises);
-    console.log(`Alarm sent to ${tokens.length} devices for family ${familyCode}`);
+    console.log(`Alarm sent to ${tokens.length} device(s) for family ${familyCode}`);
   });

@@ -10,7 +10,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.familyalarm.R
+import com.familyalarm.data.FamilyMember
 import com.familyalarm.data.FamilyRepository
 import com.familyalarm.data.PrefsManager
 import com.familyalarm.databinding.ActivityMainBinding
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: PrefsManager
     private val repo = FamilyRepository()
     private val scope = CoroutineScope(Dispatchers.Main)
+    private lateinit var memberAdapter: FamilyMemberAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +36,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         prefs = PrefsManager(this)
+
+        memberAdapter = FamilyMemberAdapter { member ->
+            onAlarmMember(member)
+        }
+        binding.rvMembers.layoutManager = LinearLayoutManager(this)
+        binding.rvMembers.adapter = memberAdapter
 
         checkDndPermission()
         requestNotificationPermission()
@@ -77,6 +86,38 @@ class MainActivity : AppCompatActivity() {
             binding.setupGroup.visibility = View.VISIBLE
             binding.alarmGroup.visibility = View.GONE
         }
+    }
+
+    private fun onAlarmMember(member: FamilyMember) {
+        val code = prefs.familyCode ?: return
+        val name = prefs.memberName ?: "Unknown"
+        val uid = repo.getCurrentUid() ?: return
+
+        AlertDialog.Builder(this)
+            .setTitle("Alarm ${member.name}?")
+            .setMessage("This will trigger a loud alarm on ${member.name}'s phone, even if it's on Do Not Disturb.")
+            .setPositiveButton("SEND ALARM") { _, _ ->
+                scope.launch {
+                    try {
+                        withContext(Dispatchers.IO) {
+                            AlarmTrigger.sendAlarm(code, name, uid, member.uid, member.name)
+                        }
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Alarm sent to ${member.name}!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Failed to send alarm: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupListeners() {
@@ -137,41 +178,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnSendAlarm.setOnClickListener {
-            val code = prefs.familyCode ?: return@setOnClickListener
-            val name = prefs.memberName ?: "Unknown"
-            val uid = repo.getCurrentUid() ?: return@setOnClickListener
-
-            AlertDialog.Builder(this)
-                .setTitle("Send Alarm?")
-                .setMessage("This will trigger a loud alarm on ALL family members' phones, even if they are on Do Not Disturb.")
-                .setPositiveButton("SEND ALARM") { _, _ ->
-                    binding.btnSendAlarm.isEnabled = false
-                    scope.launch {
-                        try {
-                            withContext(Dispatchers.IO) {
-                                AlarmTrigger.sendAlarm(code, name, uid)
-                            }
-                            Toast.makeText(
-                                this@MainActivity,
-                                getString(R.string.alarm_sent),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } catch (e: Exception) {
-                            Toast.makeText(
-                                this@MainActivity,
-                                "Failed to send alarm: ${e.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } finally {
-                            binding.btnSendAlarm.isEnabled = true
-                        }
-                    }
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        }
-
         binding.btnLeaveFamily.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle("Leave Family?")
@@ -201,11 +207,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshFamilyMembers() {
         val code = prefs.familyCode ?: return
+        val myUid = repo.getCurrentUid()
         scope.launch {
             try {
                 val family = withContext(Dispatchers.IO) { repo.getFamily(code) }
-                val membersList = family.members.joinToString("\n") { "  \u2022 ${it.name}" }
-                binding.tvMembers.text = "Family Members:\n$membersList"
+                // Show all members except yourself — you can only alarm others
+                val otherMembers = family.members.filter { it.uid != myUid }
+                memberAdapter.submitList(otherMembers)
             } catch (_: Exception) { }
         }
     }

@@ -15,7 +15,7 @@
     <string name="alarm_from">Alarm from %s</string>
     <string name="leave_family">Leave Family</string>
     <string name="family_members">Family Members</string>
-    <string name="alarm_sent">Alarm sent to family!</string>
+    <string name="alarm_sent_to">Alarm sent to %s!</string>
     <string name="grant_dnd_permission">Grant DND Override Permission</string>
     <string name="dnd_explanation">This app needs permission to override Do Not Disturb so alarms can reach you in emergencies.</string>
 </resources>
